@@ -1,0 +1,49 @@
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<header class="barra">
+  <div class="barra-interior">
+    <div class="marca">
+      <svg class="marca-icono" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M21 8.5 12 3 3 8.5v7L12 21l9-5.5v-7Z"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M3 8.5 12 14l9-5.5M12 14v7"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <span class="marca-nombre">pedidos</span>
+      <span class="marca-separador" aria-hidden="true"></span>
+      <span class="marca-contexto">operación</span>
+    </div>
+
+    <a class="barra-enlace" href="/api/pedidos" target="_blank" rel="noopener">
+      Ver API
+      <svg class="icono" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M7 17 17 7M9 7h8v8"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </a>
+  </div>
+</header>
+
+<main id="contenido" class="contenido">
+  <app-listado-pedidos />
+</main>
+
+<footer class="pie">
+  <div class="pie-interior">
+    <span>Listado de solo lectura · datos en vivo de la API</span>
+    <span class="pie-dato">GET /api/pedidos</span>
+  </div>
+</footer>

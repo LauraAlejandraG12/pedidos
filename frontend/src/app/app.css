@@ -1,0 +1,131 @@
+.saltar {
+  position: absolute;
+  top: -48px;
+  left: 16px;
+  z-index: 10;
+  padding: 10px 14px;
+  border-radius: var(--radio-sm);
+  background: var(--tinta);
+  color: #fff;
+  text-decoration: none;
+  transition: top 150ms ease-out;
+}
+
+.saltar:focus {
+  top: 10px;
+}
+
+.barra {
+  background: var(--tinta);
+  color: #f2f7f5;
+  border-bottom: 2px solid var(--lima);
+}
+
+.barra-interior {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1120px;
+  height: 60px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.marca-icono {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--lima);
+}
+
+.marca-nombre {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.marca-separador {
+  width: 1px;
+  height: 16px;
+  background: rgba(242, 247, 245, 0.25);
+}
+
+.marca-contexto {
+  font-size: 13px;
+  color: #a9bbb8;
+}
+
+.barra-enlace {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 8px;
+  border-radius: var(--radio-sm);
+  color: #cfe0dc;
+  font-size: 13px;
+  text-decoration: none;
+  transition-property: color, background-color;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+.barra-enlace:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.barra-enlace .icono {
+  width: 14px;
+  height: 14px;
+}
+
+.contenido {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+.pie {
+  border-top: 1px solid var(--linea);
+}
+
+.pie-interior {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 18px 24px 40px;
+  color: var(--tenue);
+  font-size: 12px;
+}
+
+.pie-dato {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 640px) {
+  .contenido {
+    padding: 24px 16px 40px;
+  }
+
+  .marca-contexto,
+  .marca-separador {
+    display: none;
+  }
+
+  .pie-interior {
+    padding: 16px 16px 32px;
+  }
+}

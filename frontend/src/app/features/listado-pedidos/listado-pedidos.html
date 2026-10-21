@@ -1,0 +1,226 @@
+<section class="listado" aria-labelledby="titulo-pedidos">
+  <header class="cabecera">
+    <div class="cabecera-texto">
+      <p class="eyebrow">Logística · Operación</p>
+      <h1 id="titulo-pedidos">Pedidos</h1>
+      <p class="subtitulo" aria-live="polite">
+        @if (pedidos.value(); as pagina) {
+          @if (pagina.meta.total === 0) {
+            Sin pedidos {{ estado() ? 'en este estado' : 'registrados' }}
+          } @else {
+            Mostrando {{ pagina.meta.from }}–{{ pagina.meta.to }} de
+            {{ pagina.meta.total }} pedidos
+          }
+        } @else if (pedidos.isLoading()) {
+          Cargando pedidos…
+        }
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="boton"
+      (click)="actualizar()"
+      [disabled]="pedidos.isLoading()"
+    >
+      <svg class="icono" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M20 12a8 8 0 1 1-2.6-5.9M20 4v4h-4"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      Actualizar
+    </button>
+  </header>
+
+  <article class="panel" [attr.aria-busy]="pedidos.isLoading()">
+    <div class="panel-barra">
+      <fieldset class="filtro">
+        <legend class="sr-only">Filtrar pedidos por estado</legend>
+
+        <label class="filtro-opcion">
+          <input
+            type="radio"
+            name="estado"
+            [checked]="estado() === null"
+            (change)="cambiarEstado(null)"
+          />
+          <span class="filtro-texto">Todos</span>
+          @if (totalGeneral(); as total) {
+            <span class="filtro-cuenta">{{ total }}</span>
+          }
+        </label>
+
+        @for (opcion of estados; track opcion.valor) {
+          <label class="filtro-opcion">
+            <input
+              type="radio"
+              name="estado"
+              [checked]="estado() === opcion.valor"
+              (change)="cambiarEstado(opcion.valor)"
+            />
+            <span class="filtro-texto">{{ opcion.etiqueta }}</span>
+            @if (conteos.value(); as conteos) {
+              <span class="filtro-cuenta">{{ conteos[opcion.valor] }}</span>
+            }
+          </label>
+        }
+      </fieldset>
+
+      @if (actualizadoEn(); as momento) {
+        <p class="actualizado">Actualizado {{ hora(momento) }}</p>
+      }
+    </div>
+
+    <div class="panel-cuerpo">
+      @if (pedidos.isLoading() && !pedidos.value()) {
+        <div class="esqueleto" aria-hidden="true">
+          @for (fila of esqueleto; track fila) {
+            <div class="esqueleto-fila">
+              <span class="esqueleto-bloque w-id"></span>
+              <span class="esqueleto-bloque w-cliente"></span>
+              <span class="esqueleto-bloque w-fecha"></span>
+              <span class="esqueleto-bloque w-estado"></span>
+              <span class="esqueleto-bloque w-monto"></span>
+            </div>
+          }
+        </div>
+        <p class="sr-only" role="status">Cargando el listado de pedidos.</p>
+      } @else if (pedidos.error(); as error) {
+        <div class="aviso aviso-error" role="alert">
+          <p class="aviso-titulo">No se pudo cargar el listado</p>
+          <p class="aviso-texto">{{ descripcionError(error) }}</p>
+          <button
+            type="button"
+            class="boton boton-primario"
+            (click)="actualizar()"
+          >
+            Reintentar
+          </button>
+        </div>
+      } @else if (pedidos.value(); as pagina) {
+        @if (pagina.data.length === 0) {
+          <div class="vacio">
+            <svg class="vacio-icono" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M4 9.5 12 4l8 5.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5Z"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M4 10h5l1 2h4l1-2h5"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <p class="vacio-titulo">
+              No hay pedidos
+              @if (estado()) {
+                en estado «{{ etiqueta(estado()!) }}»
+              }
+            </p>
+            <p class="vacio-texto">
+              Prueba con otro estado o vuelve al listado completo.
+            </p>
+            @if (estado()) {
+              <button type="button" class="boton" (click)="cambiarEstado(null)">
+                Ver todos los pedidos
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="tabla-marco">
+            <table class="tabla">
+              <caption class="sr-only">
+                Listado de pedidos
+                @if (estado()) {
+                  con estado {{ etiqueta(estado()!) }}
+                }
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Pedido</th>
+                  <th scope="col">Cliente</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col" class="num">Total</th>
+                  <th scope="col" class="num">Envío</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (pedido of pagina.data; track pedido.id) {
+                  <tr>
+                    <td class="celda-id" data-etiqueta="Pedido">
+                      #{{ id(pedido.id) }}
+                    </td>
+                    <td data-etiqueta="Cliente">
+                      <span class="cliente">
+                        <span class="cliente-nombre">{{ pedido.cliente.nombre }}</span>
+                        <span class="cliente-ciudad">{{ pedido.cliente.ciudad }}</span>
+                      </span>
+                    </td>
+                    <td class="celda-fecha" data-etiqueta="Fecha">
+                      {{ fecha(pedido.fecha) }}
+                    </td>
+                    <td data-etiqueta="Estado">
+                      <span class="estado estado-{{ pedido.estado }}">
+                        <span class="estado-barras" aria-hidden="true">
+                          <i></i><i></i><i></i>
+                        </span>
+                        <span class="estado-texto">{{ etiqueta(pedido.estado) }}</span>
+                      </span>
+                    </td>
+                    <td class="num celda-total" data-etiqueta="Total">
+                      {{ moneda(pedido.total) }}
+                    </td>
+                    <td
+                      class="num celda-envio"
+                      [class.con-costo]="pedido.costo_envio !== null"
+                      data-etiqueta="Envío"
+                    >
+                      {{ moneda(pedido.costo_envio) }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    </div>
+
+    @if (pedidos.value(); as pagina) {
+      @if (pagina.meta.total > 0) {
+        <footer class="panel-pie">
+          <p class="pie-resumen">
+            Página {{ pagina.meta.current_page }} de {{ pagina.meta.last_page }}
+          </p>
+
+          <nav class="paginacion" aria-label="Paginación del listado">
+            <button
+              type="button"
+              class="boton"
+              [disabled]="pagina.meta.current_page <= 1"
+              (click)="irA(pagina.meta.current_page - 1)"
+            >
+              Anterior
+            </button>
+            <button
+              type="button"
+              class="boton"
+              [disabled]="pagina.meta.current_page >= pagina.meta.last_page"
+              (click)="irA(pagina.meta.current_page + 1)"
+            >
+              Siguiente
+            </button>
+          </nav>
+        </footer>
+      }
+    }
+  </article>
+</section>

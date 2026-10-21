@@ -1,0 +1,118 @@
+/* ==========================================================================
+   Tokens de diseño — paleta tomada de uva3.com, modernizada
+   (tinta verdosa del logo + lima de marca + cian/ámbar/coral de los CSS)
+   ========================================================================== */
+
+:root {
+  --tinta: #0d1b1e;
+  --tinta-suave: #24373a;
+  --tenue: #5a6a6d;
+
+  --linea: #e0e6e4;
+  --linea-fuerte: #c9d3d0;
+
+  --lienzo: #f3f5f4;
+  --superficie: #ffffff;
+
+  --lima: #98d820;
+  --lima-tinta: #3d5c00;
+  --lima-suave: #f1f9df;
+
+  --cian: #29c0d4;
+  --cian-tinta: #06636f;
+  --cian-suave: #e2f7fa;
+
+  --ambar: #ffb921;
+  --ambar-tinta: #744800;
+  --ambar-suave: #fff4dc;
+
+  --coral: #ea5242;
+  --coral-tinta: #9e2418;
+  --coral-suave: #fdecea;
+
+  --foco: #0b6c78;
+
+  --radio-sm: 6px;
+  --radio-md: 12px;
+
+  --sombra-1:
+    0 1px 2px rgba(13, 27, 30, 0.05),
+    0 1px 3px rgba(13, 27, 30, 0.04);
+  --sombra-2:
+    0 12px 32px -20px rgba(13, 27, 30, 0.35),
+    0 2px 8px rgba(13, 27, 30, 0.04);
+
+  --fuente:
+    'Instrument Sans Variable', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background: var(--lienzo);
+  color: var(--tinta);
+  font-family: var(--fuente);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+p,
+dl,
+dd {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--lima);
+  color: var(--tinta);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

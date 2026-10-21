@@ -1,0 +1,136 @@
+# Stack completo del módulo de pedidos.
+#
+#   docker compose up -d --build
+#
+# Servicios:
+#   web        -> Nginx en http://localhost:8000
+#   app        -> PHP-FPM 8.3 con Laravel (código montado por volumen)
+#   db         -> MySQL 8.4
+#   phpmyadmin -> http://localhost:8081
+#   tarifas    -> Stub local de la API de tarifas de la transportadora
+
+name: pedidos
+
+services:
+  web:
+    image: nginx:1.27-alpine
+    container_name: pedidos_web
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html:ro
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      app:
+        condition: service_started
+    networks:
+      - pedidos
+
+  app:
+    build:
+      context: .
+      target: dev
+    container_name: pedidos_app
+    # IMPORTANTE: no se usa env_file aquí. Laravel lee .env desde el bind
+    # mount (mismo directorio de trabajo) y montar el archivo entero como
+    # variables de entorno del SO contaminaría la suite de tests: PHPUnit
+    # escribe en $_ENV, el entorno del contenedor va a $_SERVER y Laravel
+    # prioriza $_SERVER, con lo que los tests terminarían corriendo contra
+    # MySQL y borrarían los datos de demostración.
+    environment:
+      WAIT_FOR_DB: "true"
+      MIGRATE_ON_START: "true"
+      SEED_ON_START: "true"
+    volumes:
+      - .:/var/www/html
+      # El vendor viene sembrado desde la imagen y se pisa por este volumen
+      # con nombre para que el bind mount no lo oculte.
+      - app_vendor:/var/www/html/vendor
+    depends_on:
+      db:
+        condition: service_healthy
+      tarifas:
+        condition: service_started
+    networks:
+      - pedidos
+
+  db:
+    image: mysql:8.4
+    container_name: pedidos_db
+    environment:
+      MYSQL_DATABASE: pedidos
+      MYSQL_USER: pedidos
+      MYSQL_PASSWORD: pedidos
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    networks:
+      - pedidos
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: pedidos_phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: "3306"
+      UPLOAD_LIMIT: 16M
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - pedidos
+
+  # Listado en Angular (punto extra). Consume GET /api/pedidos a través del
+  # proxy de nginx, así que comparte origen con Laravel y no necesita CORS.
+  frontend:
+    build:
+      context: ./frontend
+    container_name: pedidos_frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - web
+    networks:
+      - pedidos
+
+  # Stub local de la transportadora (el dominio del enunciado no existe).
+  # Reemplázalo cambiando TARIFAS_BASE_URL y TARIFAS_API_KEY en el .env.
+  tarifas:
+    image: php:8.4-fpm-alpine
+    container_name: pedidos_tarifas
+    working_dir: /var/www/stub
+    command: php -S 0.0.0.0:8090 /var/www/stub/router.php
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./docker/tarifas:/var/www/stub:ro
+    environment:
+      TARIFAS_STUB_KEY: ${TARIFAS_API_KEY:-dev-key-transportadora}
+    healthcheck:
+      # 127.0.0.1 y no localhost: en este contenedor localhost resuelve a
+      # ::1 (IPv6) y el servidor embebido de PHP solo escucha IPv4.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8090/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - pedidos
+
+volumes:
+  db_data:
+  app_vendor:
+    # Se llena con el vendor que trae la imagen en su primer arranque.
+    # `docker compose down -v` la limpia y fuerza una reinstalación.
+
+networks:
+  pedidos:
+    driver: bridge
